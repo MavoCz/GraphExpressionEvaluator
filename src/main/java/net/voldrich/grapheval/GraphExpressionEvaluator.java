@@ -40,6 +40,7 @@ public class GraphExpressionEvaluator {
         while (dfsIterator.hasNext()) {
             var expression = dfsIterator.next();
             if (!expression.isEvaluated()) {
+                System.out.println("Evaluating " + expression);
                 valueMap.put(expression.getName(), expression.evaluate(valueMap));
             }
         }
@@ -47,11 +48,12 @@ public class GraphExpressionEvaluator {
         return expressionList;
     }
 
-    public static DefaultDirectedGraph<ExpressionWrapper, DefaultEdge> buildDependencyGraph(List<ExpressionWrapper> expressionList) {
+    public static DefaultDirectedGraph<ExpressionWrapper, DependantVariableEdge> buildDependencyGraph(
+            List<ExpressionWrapper> expressionList) {
         final Map<String, ExpressionWrapper> expressionNameMap = expressionList.stream()
                 .collect(Collectors.toMap(ExpressionWrapper::getName, Function.identity()));
 
-        var directedGraph = new DefaultDirectedGraph<ExpressionWrapper, DefaultEdge>(DefaultEdge.class);
+        var directedGraph = new DefaultDirectedGraph<ExpressionWrapper, DependantVariableEdge>(DependantVariableEdge.class);
         expressionList.forEach(directedGraph::addVertex);
         expressionList.forEach(expression -> {
             if (!expression.getVariables().isEmpty()) {
@@ -60,7 +62,7 @@ public class GraphExpressionEvaluator {
                     if (targetVertex == null) {
                         throw new RuntimeException("Unresolvable variable " + varName);
                     }
-                    directedGraph.addEdge(expression, targetVertex);
+                    directedGraph.addEdge(expression, targetVertex, new DependantVariableEdge(varName));
                 });
             }
         });

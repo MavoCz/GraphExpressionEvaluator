@@ -1,6 +1,6 @@
 package net.voldrich.grapheval;
 
-import com.mxgraph.layout.mxCircleLayout;
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.util.mxCellRenderer;
 import org.jgrapht.ext.JGraphXAdapter;
@@ -19,24 +19,6 @@ public class Main {
         evaluateAndDrawGraph();
     }
 
-    private static void evaluateAndDrawGraph() throws IOException {
-        List<ExpressionWrapper> expressions = GraphExpressionEvaluator.fromString(
-                "a=b+1",
-                "b=3",
-                "c= b * a * 2",
-                "d=2+1",
-                "e=d*3"
-        );
-        var graph = GraphExpressionEvaluator.buildDependencyGraph(expressions);
-        var graphAdapter = new JGraphXAdapter<>(graph);
-        mxIGraphLayout layout = new mxCircleLayout(graphAdapter);
-        layout.execute(graphAdapter.getDefaultParent());
-
-        BufferedImage image =  mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
-        File imgFile = new File("graph.png");
-        ImageIO.write(image, "PNG", imgFile);
-    }
-
     private static void evaluateAndPrint() {
         List<ExpressionWrapper> expressions = GraphExpressionEvaluator.fromString(
                 "a=b+1",
@@ -52,4 +34,25 @@ public class Main {
         DecimalFormat df = new DecimalFormat("#.##");
         expressions.forEach(exp -> System.out.printf("%s = %s %n", exp.getName(), df.format(exp.getValue())));
     }
+
+    private static void evaluateAndDrawGraph() throws IOException {
+        List<ExpressionWrapper> expressions = GraphExpressionEvaluator.fromString(
+                "a=b+1",
+                "b=3",
+                "c= b * a * 2",
+                "d=2+1",
+                "e=d*3",
+                "f=d+a"
+        );
+        var graph = GraphExpressionEvaluator.buildDependencyGraph(expressions);
+        var graphAdapter = new JGraphXAdapter<>(graph);
+        mxIGraphLayout layout = new mxHierarchicalLayout(graphAdapter);
+        layout.execute(graphAdapter.getDefaultParent());
+
+        BufferedImage image =  mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
+        File imgFile = new File("graph.png");
+        ImageIO.write(image, "PNG", imgFile);
+    }
+
+
 }
