@@ -22,6 +22,7 @@ public class GraphExpressionEvaluator {
             return new ExpressionWrapper(split[0].trim(), split[1].trim());
         }).toList();
     }
+
     public static List<ExpressionWrapper> evaluate(List<ExpressionWrapper> expressionList) {
         if (expressionList.stream().allMatch(ExpressionWrapper::isEvaluated)) {
             return expressionList;
